@@ -24,7 +24,7 @@ public class AEOTPTextField: UITextField {
     /// The border color of the text field slots after entering a character
     public var otpFilledBorderColor: UIColor = .darkGray
     /// The default border width of the text field slots before entering a character
-    public var otpDefaultBorderWidth: CGFloat = 0
+    public var otpDefaultBorderWidth: CGFloat = 1
     /// The border width of the text field slots after entering a character
     public var otpFilledBorderWidth: CGFloat = 1
     /// The default text color of the text
