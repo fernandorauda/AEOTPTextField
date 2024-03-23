@@ -25,6 +25,10 @@ struct AEOTPViewRepresentable: UIViewRepresentable {
     private let isSecureTextEntry: Bool
     private let onCommit: (() -> Void)?
     private let textField: AEOTPTextFieldSwiftUI
+    
+    var focusable: Binding<[Bool]>?
+    var tag: Int?
+    
         
     init(
         text: Binding<String>,
@@ -35,12 +39,14 @@ struct AEOTPViewRepresentable: UIViewRepresentable {
         otpCornerRaduis: CGFloat = 10,
         otpDefaultBorderColor: UIColor = .clear,
         otpFilledBorderColor: UIColor = .darkGray,
-        otpDefaultBorderWidth: CGFloat = 0,
+        otpDefaultBorderWidth: CGFloat = 1,
         otpFilledBorderWidth: CGFloat = 1,
         otpTextColor: UIColor = .black,
         otpFontSize: CGFloat = 14,
         otpFont: UIFont = UIFont.systemFont(ofSize: 14),
         isSecureTextEntry: Bool = false,
+        focusable: Binding<[Bool]>?,
+        tag: Int?,
         onCommit: (() -> Void)? = nil
     ) {
         self._text = text
@@ -57,6 +63,8 @@ struct AEOTPViewRepresentable: UIViewRepresentable {
         self.otpFontSize = otpFontSize
         self.otpFont = otpFont
         self.isSecureTextEntry = isSecureTextEntry
+        self.focusable = focusable
+        self.tag = tag
         self.onCommit = onCommit
         
         self.textField = AEOTPTextFieldSwiftUI(
@@ -77,17 +85,39 @@ struct AEOTPViewRepresentable: UIViewRepresentable {
     }
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(text: $text, slotsCount: slotsCount, onCommit: onCommit)
+        Coordinator(text: $text, slotsCount: slotsCount, control: self, onCommit: onCommit)
     }
     
     func makeUIView(context: Context) -> AEOTPTextFieldSwiftUI {
         textField.delegate = context.coordinator
+        
+        if let tag = tag {
+             textField.tag = tag
+         }
+        
         return textField
     }
     
-    func updateUIView(_ uiView: AEOTPTextFieldSwiftUI, context: Context) { }
+    func updateUIView(_ uiView: AEOTPTextFieldSwiftUI, context: Context) { 
+        if let focusable = focusable?.wrappedValue {
+            var resignResponder = true
+            
+            for (index, focused) in focusable.enumerated() {
+                if uiView.tag == index && focused {
+                    uiView.becomeFirstResponder()
+                    resignResponder = false
+                    break
+                }
+            }
+            
+            if resignResponder {
+                uiView.resignFirstResponder()
+            }
+        }
+    }
     
     class Coordinator: NSObject, UITextFieldDelegate {
+        let control: AEOTPViewRepresentable
         
         @Binding private var text: String
         
@@ -98,11 +128,13 @@ struct AEOTPViewRepresentable: UIViewRepresentable {
         init(
             text: Binding<String>,
             slotsCount: Int,
+            control: AEOTPViewRepresentable,
             onCommit: (() -> Void)?
         ) {
             self._text = text
             self.slotsCount = slotsCount
             self.onCommit = onCommit
+            self.control = control
             
             super.init()
         }
@@ -112,6 +144,21 @@ struct AEOTPViewRepresentable: UIViewRepresentable {
             
             if textField.text?.count == slotsCount {
                 onCommit?()
+                
+                guard var focusable = control.focusable?.wrappedValue else {
+                    textField.resignFirstResponder()
+                    return
+                }
+                
+                for i in 0...(focusable.count - 1) {
+                    focusable[i] = (textField.tag + 1 == i)
+                }
+                
+                control.focusable?.wrappedValue = focusable
+                
+                if textField.tag == focusable.count - 1 {
+                    textField.resignFirstResponder()
+                }
             }
         }
         

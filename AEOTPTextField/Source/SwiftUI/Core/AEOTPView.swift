@@ -50,6 +50,10 @@ public struct AEOTPView: View {
     private let enableClearOTP: Bool
     /// A Closure that fires when the OTP returned
     private var onCommit: (() -> Void)?
+    /// focusable array
+    private var focusable: Binding<[Bool]>?
+    ///tag for focus
+    var tag: Int?
     
     // MARK: - INIT
     //
@@ -84,13 +88,15 @@ public struct AEOTPView: View {
         otpCornerRaduis: CGFloat = 10,
         otpDefaultBorderColor: UIColor = .clear,
         otpFilledBorderColor: UIColor = .darkGray,
-        otpDefaultBorderWidth: CGFloat = 0,
+        otpDefaultBorderWidth: CGFloat = 1,
         otpFilledBorderWidth: CGFloat = 1,
         otpTextColor: UIColor = .black,
         otpFontSize: CGFloat = 14,
         otpFont: UIFont = UIFont.systemFont(ofSize: 14),
         isSecureTextEntry: Bool = false,
         enableClearOTP: Bool = false,
+        focusable: Binding<[Bool]>? = nil,
+        tag: Int? = nil,
         onCommit: (() -> Void)? = nil
     ) {
         self._text = text
@@ -110,6 +116,8 @@ public struct AEOTPView: View {
         self.otpFont = otpFont
         self.isSecureTextEntry = isSecureTextEntry
         self.enableClearOTP = enableClearOTP
+        self.focusable = focusable
+        self.tag = tag
         self.onCommit = onCommit
     }
     
@@ -150,6 +158,8 @@ public struct AEOTPView: View {
             otpFontSize: otpFontSize,
             otpFont: otpFont,
             isSecureTextEntry: isSecureTextEntry,
+            focusable: focusable,
+            tag: tag,
             onCommit: onCommit
         )
     } //: otpView
