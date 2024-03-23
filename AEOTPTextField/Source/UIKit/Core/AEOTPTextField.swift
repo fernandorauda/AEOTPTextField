@@ -128,6 +128,8 @@ private extension AEOTPTextField {
         label.isUserInteractionEnabled = true
         label.layer.masksToBounds = true
         label.text = otpDefaultCharacter
+        label.layer.borderWidth = otpDefaultBorderWidth
+        label.layer.borderColor = otpDefaultBorderColor.cgColor
         return label
     }
     
