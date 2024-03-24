@@ -66,7 +66,7 @@ struct AEOTPViewRepresentable: UIViewRepresentable {
         self.focusable = focusable
         self.tag = tag
         self.onCommit = onCommit
-        
+
         self.textField = AEOTPTextFieldSwiftUI(
             slotsCount: slotsCount,
             otpDefaultCharacter: otpDefaultCharacter,
@@ -94,6 +94,8 @@ struct AEOTPViewRepresentable: UIViewRepresentable {
         if let tag = tag {
              textField.tag = tag
          }
+        
+        textField.addTarget(context.coordinator, action: #selector(Coordinator.textFieldDidChange(_:)), for: .editingChanged)
         
         return textField
     }
@@ -139,9 +141,19 @@ struct AEOTPViewRepresentable: UIViewRepresentable {
             super.init()
         }
         
-        func textFieldDidChangeSelection(_ textField: UITextField) {
-            text = textField.text ?? ""
+        func textFieldDidBeginEditing(_ textField: UITextField) {
+            guard var focusable = control.focusable?.wrappedValue else { return }
             
+            for i in 0...(focusable.count - 1) {
+                focusable[i] = (textField.tag == i)
+            }
+            
+            DispatchQueue.main.async {
+                self.control.focusable?.wrappedValue = focusable
+            }
+        }
+
+        func textFieldDidChangeSelection(_ textField: UITextField) {
             if textField.text?.count == slotsCount {
                 onCommit?()
                 
@@ -170,6 +182,10 @@ struct AEOTPViewRepresentable: UIViewRepresentable {
         func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
             guard let characterCount = textField.text?.count else { return false }
             return characterCount < slotsCount || string.isEmpty
+        }
+        
+        @objc func textFieldDidChange(_ textField: UITextField) {
+            control.text = textField.text ?? ""
         }
     }
 }

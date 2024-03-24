@@ -11,6 +11,9 @@ struct SwiftUIView: View {
     // MARK: - PROPERTIES
     //
     @State private var otp: String = ""
+    @State private var otp2: String = ""
+    @State private var focusables = [false, false]
+
     @State private var alertIsPresented: Bool = false
     
     // MARK: - BODY
@@ -21,7 +24,38 @@ struct SwiftUIView: View {
                 .padding(.top, 60)
                 .padding(.leading, 16)
             
-            AEOTPView(text: $otp, otpFilledBackgroundColor: .green) {
+            AEOTPView(
+                text: $otp,
+                slotsCount: 2,
+                width: 190.0,
+                height: 40.0,
+                otpBackgroundColor: .clear,
+                otpFilledBackgroundColor: .clear,
+                otpDefaultBorderColor: .gray,
+                otpFilledBorderColor: .red,
+                otpDefaultBorderWidth: 1,
+                otpFilledBorderWidth: 2,
+                focusable: $focusables,
+                tag: 0
+            ) {
+                hideKeyboard()
+            } //: AEOTPView
+            .padding()
+            
+            AEOTPView(
+                text: $otp2,
+                slotsCount: 2,
+                width: 190.0,
+                height: 40.0,
+                otpBackgroundColor: .clear,
+                otpFilledBackgroundColor: .clear,
+                otpDefaultBorderColor: .gray,
+                otpFilledBorderColor: .red,
+                otpDefaultBorderWidth: 1,
+                otpFilledBorderWidth: 2,
+                focusable: $focusables,
+                tag: 1
+            ) {
                 alertIsPresented = true
             } //: AEOTPView
             .padding()
@@ -44,3 +78,11 @@ struct SwiftUIView: View {
     } //: otpAlert
 }
 
+
+#if canImport(UIKit)
+extension View {
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+}
+#endif
