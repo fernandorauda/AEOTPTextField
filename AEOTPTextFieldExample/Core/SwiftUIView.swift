@@ -41,6 +41,13 @@ struct SwiftUIView: View {
                 hideKeyboard()
             } //: AEOTPView
             .padding()
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                                    Button("Click me!") {
+                                        print("Clicked")
+                                    }
+                                }
+            }
             
             AEOTPView(
                 text: $otp2,

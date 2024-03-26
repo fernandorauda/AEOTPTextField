@@ -47,6 +47,7 @@ struct AEOTPViewRepresentable: UIViewRepresentable {
         isSecureTextEntry: Bool = false,
         focusable: Binding<[Bool]>?,
         tag: Int?,
+        inputAccessoryView: UIView?,
         onCommit: (() -> Void)? = nil
     ) {
         self._text = text
@@ -80,7 +81,8 @@ struct AEOTPViewRepresentable: UIViewRepresentable {
             otpTextColor: otpTextColor,
             otpFontSize: otpFontSize,
             otpFont: otpFont,
-            isSecureTextEntry: isSecureTextEntry
+            isSecureTextEntry: isSecureTextEntry,
+            inputAccessoryView: inputAccessoryView
         )
     }
     

@@ -54,6 +54,8 @@ public struct AEOTPView: View {
     private var focusable: Binding<[Bool]>?
     ///tag for focus
     var tag: Int?
+    //toolbar
+    var inputAccessoryView: UIView?
     
     // MARK: - INIT
     //
@@ -97,6 +99,7 @@ public struct AEOTPView: View {
         enableClearOTP: Bool = false,
         focusable: Binding<[Bool]>? = nil,
         tag: Int? = nil,
+        inputAccessoryView: UIView? = nil,
         onCommit: (() -> Void)? = nil
     ) {
         self._text = text
@@ -118,6 +121,7 @@ public struct AEOTPView: View {
         self.enableClearOTP = enableClearOTP
         self.focusable = focusable
         self.tag = tag
+        self.inputAccessoryView = inputAccessoryView
         self.onCommit = onCommit
     }
     
@@ -160,6 +164,7 @@ public struct AEOTPView: View {
             isSecureTextEntry: isSecureTextEntry,
             focusable: focusable,
             tag: tag,
+            inputAccessoryView: inputAccessoryView,
             onCommit: onCommit
         )
     } //: otpView
