@@ -53,7 +53,7 @@ public struct AEOTPView: View {
     /// focusable array
     private var focusable: Binding<[Bool]>?
     ///tag for focus
-    var tag: Int?
+    var tag: Int
     //toolbar
     var inputAccessoryView: UIView?
     
@@ -98,7 +98,7 @@ public struct AEOTPView: View {
         isSecureTextEntry: Bool = false,
         enableClearOTP: Bool = false,
         focusable: Binding<[Bool]>? = nil,
-        tag: Int? = nil,
+        tag: Int = 0,
         inputAccessoryView: UIView? = nil,
         onCommit: (() -> Void)? = nil
     ) {

@@ -5,6 +5,7 @@
 //  Created by Abdelrhman Eliwa on 01/06/2022.
 //
 import SwiftUI
+import UIKit
 import AEOTPTextField
 
 struct SwiftUIView: View {
@@ -38,7 +39,6 @@ struct SwiftUIView: View {
                 focusable: $focusables,
                 tag: 0
             ) {
-                hideKeyboard()
             } //: AEOTPView
             .padding()
             .toolbar {
@@ -63,7 +63,6 @@ struct SwiftUIView: View {
                 focusable: $focusables,
                 tag: 1
             ) {
-                alertIsPresented = true
             } //: AEOTPView
             .padding()
             
@@ -82,7 +81,7 @@ struct SwiftUIView: View {
                 alertIsPresented = false
             })
         )
-    } //: otpAlert
+    }
 }
 
 

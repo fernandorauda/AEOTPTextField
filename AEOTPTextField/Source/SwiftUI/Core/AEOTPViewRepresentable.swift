@@ -25,6 +25,8 @@ struct AEOTPViewRepresentable: UIViewRepresentable {
     private let isSecureTextEntry: Bool
     private let onCommit: (() -> Void)?
     private let textField: AEOTPTextFieldSwiftUI
+    private let toolbar = UIToolbar(frame: CGRectMake(0, 0, UIScreen.main.bounds.size.width, 50))
+
     
     var focusable: Binding<[Bool]>?
     var tag: Int?
@@ -46,7 +48,7 @@ struct AEOTPViewRepresentable: UIViewRepresentable {
         otpFont: UIFont = UIFont.systemFont(ofSize: 14),
         isSecureTextEntry: Bool = false,
         focusable: Binding<[Bool]>?,
-        tag: Int?,
+        tag: Int = 0,
         inputAccessoryView: UIView?,
         onCommit: (() -> Void)? = nil
     ) {
@@ -82,7 +84,8 @@ struct AEOTPViewRepresentable: UIViewRepresentable {
             otpFontSize: otpFontSize,
             otpFont: otpFont,
             isSecureTextEntry: isSecureTextEntry,
-            inputAccessoryView: inputAccessoryView
+            tag: tag,
+            inputAccessoryView: toolbar
         )
     }
     
@@ -98,24 +101,35 @@ struct AEOTPViewRepresentable: UIViewRepresentable {
          }
         
         textField.addTarget(context.coordinator, action: #selector(Coordinator.textFieldDidChange(_:)), for: .editingChanged)
+        toolbar.items = [
+                UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
+                UIBarButtonItem(title: (focusable?.wrappedValue.count ?? 0) - 1 == tag ? "Listo" : "Siguiente", style: .plain, target: context.coordinator, action: #selector(Coordinator.textFieldShouldReturn(_:)))]
+
+        toolbar.sizeToFit()
         
         return textField
     }
     
     func updateUIView(_ uiView: AEOTPTextFieldSwiftUI, context: Context) { 
+        uiView.text = text
+
         if let focusable = focusable?.wrappedValue {
             var resignResponder = true
             
             for (index, focused) in focusable.enumerated() {
                 if uiView.tag == index && focused {
-                    uiView.becomeFirstResponder()
+                    DispatchQueue.main.async {
+                        uiView.becomeFirstResponder()
+                    }
                     resignResponder = false
                     break
                 }
             }
             
             if resignResponder {
-                uiView.resignFirstResponder()
+                DispatchQueue.main.async {
+                    uiView.resignFirstResponder()
+                }
             }
         }
     }
@@ -158,26 +172,29 @@ struct AEOTPViewRepresentable: UIViewRepresentable {
         func textFieldDidChangeSelection(_ textField: UITextField) {
             if textField.text?.count == slotsCount {
                 onCommit?()
-                
-                guard var focusable = control.focusable?.wrappedValue else {
-                    textField.resignFirstResponder()
-                    return
-                }
-                
-                for i in 0...(focusable.count - 1) {
-                    focusable[i] = (textField.tag + 1 == i)
-                }
-                
-                control.focusable?.wrappedValue = focusable
-                
-                if textField.tag == focusable.count - 1 {
-                    textField.resignFirstResponder()
-                }
             }
         }
         
         func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-            textField.resignFirstResponder()
+            guard var focusable = control.focusable?.wrappedValue else {
+                DispatchQueue.main.async {
+                    textField.resignFirstResponder()
+                }
+                return true
+            }
+            
+            for i in 0...(focusable.count - 1) {
+                focusable[i] = (textField.tag + 1 == i)
+            }
+            
+            control.focusable?.wrappedValue = focusable
+            
+            if control.tag == focusable.count - 1 {
+                DispatchQueue.main.async {
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                }
+            }
+            
             return true
         }
         
